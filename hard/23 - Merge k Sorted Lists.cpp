@@ -11,89 +11,54 @@
 
 class Solution {
 public:
-    // Swap the values of two nodes.
-    void swap(ListNode* n1, ListNode* n2){
-        int t = n1->val;
-        n1->val = n2->val;
-        n2->val = t;
-    }
 
-    // Return the node at a position in the list or nullptr
-    ListNode* nodeAtPos(ListNode* list, unsigned int pos){
-        ListNode* n = list;
-        for(int i = 0; i < pos && n; i++)
-            n = n->next;
-        return n;
-    }
+    // Borrowed from easy/#21 - Merge Two Sorted Lists.cpp
+    ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
+        ListNode dummy;
+        ListNode* t = &dummy,
+                * n1 = list1,
+                * n2 = list2;
 
-    // Partition the list
-    int part(ListNode* list, int min, int max){
-        ListNode* pivot = nodeAtPos(list, max);
-        int i = min - 1;
-
-        ListNode* minNode = nodeAtPos(list, min);
-        ListNode* maxNode = nodeAtPos(list, max);
-        ListNode* n = minNode;
-
-        while(n && n != maxNode){
-            if(n->val <= pivot->val){
-                i++;
-                swap(nodeAtPos(list, i), n);
+        while(n1 && n2){
+            if(n1->val <= n2->val){
+                t->next = n1;
+                n1 = n1->next;
             }
-            n = n->next;
+            else{
+                t->next = n2;
+                n2 = n2->next;
+            }
+
+            t = t->next;
         }
 
-        swap(nodeAtPos(list, i + 1), maxNode);
-        return i + 1;
-    }
+        if(n1)
+            t->next = n1;
+        else if(n2)
+            t->next = n2;
 
-    // Quicksort
-    void quick_sort(ListNode* list, int min, int max){
-        if(min < max){
-            int pi = part(list, min, max);
-
-            quick_sort(list, min, pi - 1);
-            quick_sort(list, pi + 1, max);
-        }
+        return dummy.next;
     }
 
     ListNode* mergeKLists(vector<ListNode*>& lists) {
 
-        int listsSize = lists.size();
-        if(!listsSize)
+        if(!lists.size())
             return nullptr;
 
-        ListNode dummy;
-        int size = 0;
+        while(lists.size() > 1){
+            vector<ListNode*> merged;
 
-        // Merge all the lists together.
-        for(int i = 0; i < listsSize - 1; i++){
-            ListNode* n = lists.at(i);
-
-            // If the list is empty, ignore it
-            if(!n)
-                continue;
-
-            // Set the dummy to the first found non-null ListNode*
-            if(!dummy.next)
-                dummy.next = n;
-
-            // Go to the last node and count the nodes
-            while(n->next){
-                n = n->next;
-                size++;
+            for(int i = 0; i < lists.size(); i += 2){
+                ListNode* n1 = lists[i];
+                ListNode* n2 = (i + 1 < lists.size()) ? lists[i + 1] : nullptr;
+                merged.push_back(mergeTwoLists(n1, n2));
             }
 
-            // Attach the root of the next list to the end of this list.
-            n->next = lists.at(i + 1);
-            size++;
+            lists = merged;
         }
 
-        // Sort if it even needs to be sorted.
-        if(size > 1)
-            quick_sort(dummy.next, 0, size);
-
-        return dummy.next;
+        return lists[0];
 
     }
+
 };
