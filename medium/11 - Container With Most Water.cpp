@@ -1,27 +1,26 @@
+// O(n)
 class Solution {
 public:
     int maxArea(vector<int>& height) {
-
-        int max = 0,
-            i = 0,
-            j = height.size() - 1,
-            r = 0;
-
-        while(i < j){
-            if(height[i] <= height[j]){
-                r = height[i] * (j - i);
-                i++;
+        
+        int l = 0,                  // left iter
+            r = height.size() - 1,  // right iter
+            m = INT_MIN;            // maximum area
+        
+        // update max and increment the iter with the smallest height
+        while(l < r){
+            if(height[l] <= height[r]){
+                m = std::max(m, (r - l) * height[l]);
+                l++;
             }
             else{
-                r = height[j] * (j - i);
-                j--;
+                m = std::max(m, (r - l) * height[r]);
+                r--;
             }
-
-            if(r > max)
-                max = r;
+            
         }
-
-        return max;
-
+        
+        return m;
+        
     }
 };
